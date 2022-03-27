@@ -2,36 +2,27 @@ package com.banshee.core.controller;
 
 
 import com.banshee.core.controller.exceptions.AttributeNotFoundException;
-import com.banshee.core.controller.exceptions.SalesRepresentativeNotFoundException;
-import com.banshee.core.controller.exceptions.VisitNotFoundException;
 import com.banshee.core.entity.SalesRepresentative;
-import com.banshee.core.repository.SalesRepresentativeRepository;
-import com.banshee.core.repository.VisitRepository;
+import com.banshee.core.service.SalesRepresentativeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:8081")
 @RestController
 @RequestMapping("/api")
 public class SalesRepresentativeController {
     @Autowired
-    SalesRepresentativeRepository salesRepresentativeRepository;
-
-    @Autowired
-    VisitRepository visitRepository;
+    SalesRepresentativeService salesRepresentativeService;
 
     @GetMapping("/salesRepresentative")
     public ResponseEntity<List<SalesRepresentative>> getAllRepresentatives() {
         try {
             List<SalesRepresentative> salesRepresentatives =
-                    new ArrayList<>(salesRepresentativeRepository.findAll());
-
+                    salesRepresentativeService.getAllRepresentatives();
             if (salesRepresentatives.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -45,8 +36,9 @@ public class SalesRepresentativeController {
     public ResponseEntity<SalesRepresentative> createRepresentative(
             @RequestBody SalesRepresentative salesRepresentative) {
         try {
-            SalesRepresentative savedRepresentative = salesRepresentativeRepository.save(salesRepresentative);
-            return new ResponseEntity(savedRepresentative, HttpStatus.CREATED);
+            return new ResponseEntity(
+                    salesRepresentativeService.createRepresentative(salesRepresentative),
+                    HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -57,19 +49,9 @@ public class SalesRepresentativeController {
             @PathVariable(value = "visitId") Long visitId,
             @RequestBody SalesRepresentative salesRepresentative) {
         try {
-            SalesRepresentative newRepresentative = visitRepository.findById(visitId).map(visit -> {
-                long representativeId = salesRepresentative.getId();
-                if(representativeId != 0){
-                    SalesRepresentative retrievedRepresentative = salesRepresentativeRepository.findById(representativeId)
-                            .orElseThrow(() -> new SalesRepresentativeNotFoundException(representativeId));
-                    visit.addSalesRepresentative(retrievedRepresentative);
-                    visitRepository.save(visit);
-                    return retrievedRepresentative;
-                }
-                visit.addSalesRepresentative(salesRepresentative);
-                return salesRepresentativeRepository.save(salesRepresentative);
-            }).orElseThrow(() -> new VisitNotFoundException(visitId));
-            return new ResponseEntity<>(newRepresentative, HttpStatus.CREATED);
+            return new ResponseEntity<>(
+                    salesRepresentativeService.createRepresentativeIntoVisit(visitId, salesRepresentative),
+                    HttpStatus.CREATED);
         } catch (AttributeNotFoundException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
@@ -80,7 +62,7 @@ public class SalesRepresentativeController {
     @DeleteMapping("/salesRepresentative/{id}")
     public ResponseEntity<HttpStatus> deleteRepresentativeById(@PathVariable("id") long id) {
         try {
-            salesRepresentativeRepository.deleteById(id);
+            salesRepresentativeService.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (EmptyResultDataAccessException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -91,11 +73,9 @@ public class SalesRepresentativeController {
     public ResponseEntity<SalesRepresentative> updateRepresentative(@PathVariable("id") long id,
                                                            @RequestBody SalesRepresentative salesRepresentative) {
         try {
-            SalesRepresentative retrievedRepresentative = salesRepresentativeRepository.findById(id)
-                    .orElseThrow(() -> new SalesRepresentativeNotFoundException(id));
-            retrievedRepresentative.setNit(salesRepresentative.getNit());
-            retrievedRepresentative.setName(salesRepresentative.getName());
-            return new ResponseEntity<>(salesRepresentativeRepository.save(retrievedRepresentative), HttpStatus.OK);
+            return new ResponseEntity<>(
+                    salesRepresentativeService.updateRepresentative(id, salesRepresentative),
+                    HttpStatus.OK);
         } catch (AttributeNotFoundException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
