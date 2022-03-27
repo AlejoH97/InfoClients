@@ -1,6 +1,9 @@
 package com.banshee.core.controller;
 
 
+import com.banshee.core.controller.exceptions.AttributeNotFoundException;
+import com.banshee.core.controller.exceptions.SalesRepresentativeNotFoundException;
+import com.banshee.core.controller.exceptions.VisitNotFoundException;
 import com.banshee.core.entity.SalesRepresentative;
 import com.banshee.core.repository.SalesRepresentativeRepository;
 import com.banshee.core.repository.VisitRepository;
@@ -27,7 +30,7 @@ public class SalesRepresentativeController {
     public ResponseEntity<List<SalesRepresentative>> getAllRepresentatives() {
         try {
             List<SalesRepresentative> salesRepresentatives =
-                    new ArrayList<SalesRepresentative>(salesRepresentativeRepository.findAll());
+                    new ArrayList<>(salesRepresentativeRepository.findAll());
 
             if (salesRepresentatives.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -50,7 +53,7 @@ public class SalesRepresentativeController {
     }
 
     @PostMapping("/salesRepresentative/{visitId}")
-    public ResponseEntity<SalesRepresentative> createLocationIntoClient(
+    public ResponseEntity<SalesRepresentative> createRepresentativeIntoVisit(
             @PathVariable(value = "visitId") Long visitId,
             @RequestBody SalesRepresentative salesRepresentative) {
         try {
@@ -58,17 +61,19 @@ public class SalesRepresentativeController {
                 long representativeId = salesRepresentative.getId();
                 if(representativeId != 0){
                     SalesRepresentative retrievedRepresentative = salesRepresentativeRepository.findById(representativeId)
-                            .orElseThrow(() -> new NullPointerException("Representative to add not found"));
+                            .orElseThrow(() -> new SalesRepresentativeNotFoundException(representativeId));
                     visit.addSalesRepresentative(retrievedRepresentative);
                     visitRepository.save(visit);
                     return retrievedRepresentative;
                 }
                 visit.addSalesRepresentative(salesRepresentative);
                 return salesRepresentativeRepository.save(salesRepresentative);
-            }).orElseThrow(() -> new NullPointerException("Visit not found"));
+            }).orElseThrow(() -> new VisitNotFoundException(visitId));
             return new ResponseEntity<>(newRepresentative, HttpStatus.CREATED);
-        } catch (NullPointerException e) {
+        } catch (AttributeNotFoundException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -87,12 +92,14 @@ public class SalesRepresentativeController {
                                                            @RequestBody SalesRepresentative salesRepresentative) {
         try {
             SalesRepresentative retrievedRepresentative = salesRepresentativeRepository.findById(id)
-                    .orElseThrow(() -> new NullPointerException("Sales Representative not found"));
+                    .orElseThrow(() -> new SalesRepresentativeNotFoundException(id));
             retrievedRepresentative.setNit(salesRepresentative.getNit());
             retrievedRepresentative.setName(salesRepresentative.getName());
             return new ResponseEntity<>(salesRepresentativeRepository.save(retrievedRepresentative), HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (AttributeNotFoundException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

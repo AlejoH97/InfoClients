@@ -1,5 +1,8 @@
 package com.banshee.core.controller;
 
+import com.banshee.core.controller.exceptions.AttributeNotFoundException;
+import com.banshee.core.controller.exceptions.ClientIdNotFoundException;
+import com.banshee.core.controller.exceptions.LocationNotFoundException;
 import com.banshee.core.entity.Location;
 import com.banshee.core.repository.ClientRepository;
 import com.banshee.core.repository.LocationRepository;
@@ -54,17 +57,19 @@ public class LocationController {
                 long locationId = location.getId();
                 if(locationId != 0){
                     Location retrievedLocation = locationRepository.findById(locationId)
-                            .orElseThrow(() -> new NullPointerException("Location to add not found"));
+                            .orElseThrow(() -> new LocationNotFoundException(locationId));
                     client.addLocation(retrievedLocation);
                     clientRepository.save(client);
                     return retrievedLocation;
                 }
                 client.addLocation(location);
                 return locationRepository.save(location);
-            }).orElseThrow(() -> new NullPointerException("Client not found"));
+            }).orElseThrow(() -> new ClientIdNotFoundException(clientId));
             return new ResponseEntity<>(newLocation, HttpStatus.CREATED);
-        } catch (NullPointerException e) {
+        } catch (AttributeNotFoundException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -82,13 +87,15 @@ public class LocationController {
     public ResponseEntity<Location> updateLocation(@PathVariable("id") long id, @RequestBody Location location) {
         try {
             Location retrievedLocation = locationRepository.findById(id)
-                    .orElseThrow(() -> new NullPointerException("Location not found"));
+                    .orElseThrow(() -> new LocationNotFoundException(id));
             retrievedLocation.setCity(location.getCity());
             retrievedLocation.setState(location.getState());
             retrievedLocation.setCountry(location.getCountry());
             return new ResponseEntity<>(locationRepository.save(retrievedLocation), HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (AttributeNotFoundException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

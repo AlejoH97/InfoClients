@@ -1,5 +1,6 @@
 package com.banshee.core.controller;
 
+import com.banshee.core.controller.exceptions.ClientIdNotFoundException;
 import com.banshee.core.entity.Client;
 import com.banshee.core.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class ClientController {
     public ResponseEntity<Client> updateClient(@PathVariable("id") long id, @RequestBody Client client) {
         try {
             Client retrievedClient = clientRepository.findById(id)
-                    .orElseThrow(() -> new NullPointerException("Client not found"));
+                    .orElseThrow(() -> new ClientIdNotFoundException(id));
             retrievedClient.setNit(client.getNit());
             retrievedClient.setFullName(client.getFullName());
             retrievedClient.setAddress(client.getAddress());
@@ -66,8 +67,10 @@ public class ClientController {
             retrievedClient.setAvailableCredit(client.getAvailableCredit());
             retrievedClient.setVisitsPercentage(client.getVisitsPercentage());
             return new ResponseEntity<>(clientRepository.save(retrievedClient), HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (ClientIdNotFoundException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
