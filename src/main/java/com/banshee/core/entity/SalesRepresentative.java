@@ -5,7 +5,8 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.lang.reflect.Field;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Component
@@ -20,7 +21,7 @@ public class SalesRepresentative {
 
     @ManyToMany(mappedBy = "salesRepresentatives")
     @JsonIgnore
-    private List<Visit> visits;
+    private Set<Visit> visits = new HashSet<>();
 
     public SalesRepresentative(){}
 
@@ -50,11 +51,11 @@ public class SalesRepresentative {
         return name;
     }
 
-    public List<Visit> getVisits() {
+    public Set<Visit> getVisits() {
         return visits;
     }
 
-    public void setVisits(List<Visit> visits) {
+    public void setVisits(Set<Visit> visits) {
         this.visits = visits;
     }
 
