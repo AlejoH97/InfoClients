@@ -26,7 +26,8 @@ public class SalesRepresentativeController {
     @GetMapping("/salesRepresentative")
     public ResponseEntity<List<SalesRepresentative>> getAllRepresentatives() {
         try {
-            List<SalesRepresentative> salesRepresentatives = new ArrayList<SalesRepresentative>(salesRepresentativeRepository.findAll());
+            List<SalesRepresentative> salesRepresentatives =
+                    new ArrayList<SalesRepresentative>(salesRepresentativeRepository.findAll());
 
             if (salesRepresentatives.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -38,7 +39,8 @@ public class SalesRepresentativeController {
     }
 
     @PostMapping("/salesRepresentative")
-    public ResponseEntity<SalesRepresentative> createRepresentative(@RequestBody SalesRepresentative salesRepresentative) {
+    public ResponseEntity<SalesRepresentative> createRepresentative(
+            @RequestBody SalesRepresentative salesRepresentative) {
         try {
             SalesRepresentative savedRepresentative = salesRepresentativeRepository.save(salesRepresentative);
             return new ResponseEntity(savedRepresentative, HttpStatus.CREATED);
@@ -48,8 +50,9 @@ public class SalesRepresentativeController {
     }
 
     @PostMapping("/salesRepresentative/{visitId}")
-    public ResponseEntity<SalesRepresentative> createLocationIntoClient(@PathVariable(value = "visitId") Long visitId,
-                                                             @RequestBody SalesRepresentative salesRepresentative) {
+    public ResponseEntity<SalesRepresentative> createLocationIntoClient(
+            @PathVariable(value = "visitId") Long visitId,
+            @RequestBody SalesRepresentative salesRepresentative) {
         try {
             SalesRepresentative newRepresentative = visitRepository.findById(visitId).map(visit -> {
                 long representativeId = salesRepresentative.getId();
@@ -76,6 +79,20 @@ public class SalesRepresentativeController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (EmptyResultDataAccessException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/salesRepresentative/{id}")
+    public ResponseEntity<SalesRepresentative> updateRepresentative(@PathVariable("id") long id,
+                                                           @RequestBody SalesRepresentative salesRepresentative) {
+        try {
+            SalesRepresentative retrievedRepresentative = salesRepresentativeRepository.findById(id)
+                    .orElseThrow(() -> new NullPointerException("Sales Representative not found"));
+            retrievedRepresentative.setNit(salesRepresentative.getNit());
+            retrievedRepresentative.setName(salesRepresentative.getName());
+            return new ResponseEntity<>(salesRepresentativeRepository.save(retrievedRepresentative), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 }

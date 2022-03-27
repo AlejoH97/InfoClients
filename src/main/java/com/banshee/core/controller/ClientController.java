@@ -52,4 +52,22 @@ public class ClientController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
+
+    @PutMapping("/clients/{id}")
+    public ResponseEntity<Client> updateClient(@PathVariable("id") long id, @RequestBody Client client) {
+        try {
+            Client retrievedClient = clientRepository.findById(id)
+                    .orElseThrow(() -> new NullPointerException("Client not found"));
+            retrievedClient.setNit(client.getNit());
+            retrievedClient.setFullName(client.getFullName());
+            retrievedClient.setAddress(client.getAddress());
+            retrievedClient.setPhone(client.getPhone());
+            retrievedClient.setCreditLimit(client.getCreditLimit());
+            retrievedClient.setAvailableCredit(client.getAvailableCredit());
+            retrievedClient.setVisitsPercentage(client.getVisitsPercentage());
+            return new ResponseEntity<>(clientRepository.save(retrievedClient), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
 }

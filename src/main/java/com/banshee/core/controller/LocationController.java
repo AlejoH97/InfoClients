@@ -77,4 +77,18 @@ public class LocationController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
+
+    @PutMapping("/locations/{id}")
+    public ResponseEntity<Location> updateLocation(@PathVariable("id") long id, @RequestBody Location location) {
+        try {
+            Location retrievedLocation = locationRepository.findById(id)
+                    .orElseThrow(() -> new NullPointerException("Location not found"));
+            retrievedLocation.setCity(location.getCity());
+            retrievedLocation.setState(location.getState());
+            retrievedLocation.setCountry(location.getCountry());
+            return new ResponseEntity<>(locationRepository.save(retrievedLocation), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
 }
