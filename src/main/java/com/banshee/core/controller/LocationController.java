@@ -4,6 +4,7 @@ import com.banshee.core.entity.Location;
 import com.banshee.core.repository.ClientRepository;
 import com.banshee.core.repository.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -64,6 +65,16 @@ public class LocationController {
             return new ResponseEntity<>(newLocation, HttpStatus.CREATED);
         } catch (NullPointerException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/locations/{id}")
+    public ResponseEntity<HttpStatus> deleteLocationById(@PathVariable("id") long id) {
+        try {
+            locationRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (EmptyResultDataAccessException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.banshee.core.controller;
 import com.banshee.core.entity.Client;
 import com.banshee.core.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +40,16 @@ public class ClientController {
             return new ResponseEntity<>(newClient, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/clients/{id}")
+    public ResponseEntity<HttpStatus> deleteClientById(@PathVariable("id") long id) {
+        try {
+            clientRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (EmptyResultDataAccessException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 }

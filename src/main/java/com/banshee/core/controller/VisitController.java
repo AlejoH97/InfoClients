@@ -5,6 +5,7 @@ import com.banshee.core.repository.ClientRepository;
 import com.banshee.core.repository.SalesRepresentativeRepository;
 import com.banshee.core.repository.VisitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +51,16 @@ public class VisitController {
             return new ResponseEntity<>(newVisit, HttpStatus.CREATED);
         } catch (NullPointerException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/visits/{id}")
+    public ResponseEntity<HttpStatus> deleteVisitById(@PathVariable("id") long id) {
+        try {
+            visitRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (EmptyResultDataAccessException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 }
