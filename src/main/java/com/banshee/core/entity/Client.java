@@ -54,6 +54,11 @@ public class Client {
         location.getClients().add(this);
     }
 
+    public void addVisit(Visit visit){
+        this.visits.add(visit);
+        visit.setClient(this);
+    }
+
     public long getId() {
         return id;
     }

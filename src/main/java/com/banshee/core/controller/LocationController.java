@@ -35,8 +35,18 @@ public class LocationController {
         }
     }
 
-    @PostMapping("/clients/{clientId}/locations")
-    public ResponseEntity<Location> createLocation(@PathVariable(value = "clientId") Long clientId,
+    @PostMapping("/locations")
+    public ResponseEntity<Location> createLocation(@RequestBody Location location) {
+        try {
+            Location newLocation = locationRepository.save(location);
+            return new ResponseEntity(newLocation, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/locations/{clientId}")
+    public ResponseEntity<Location> createLocationIntoClient(@PathVariable(value = "clientId") Long clientId,
                                                    @RequestBody Location location) {
         try {
             Location newLocation = clientRepository.findById(clientId).map(client -> {

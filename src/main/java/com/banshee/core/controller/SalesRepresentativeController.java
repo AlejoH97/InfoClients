@@ -1,9 +1,9 @@
 package com.banshee.core.controller;
 
 
-import com.banshee.core.entity.Client;
 import com.banshee.core.entity.SalesRepresentative;
 import com.banshee.core.repository.SalesRepresentativeRepository;
+import com.banshee.core.repository.VisitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +18,9 @@ import java.util.List;
 public class SalesRepresentativeController {
     @Autowired
     SalesRepresentativeRepository salesRepresentativeRepository;
+
+    @Autowired
+    VisitRepository visitRepository;
 
     @GetMapping("/salesRepresentative")
     public ResponseEntity<List<SalesRepresentative>> getAllRepresentatives() {
@@ -34,12 +37,34 @@ public class SalesRepresentativeController {
     }
 
     @PostMapping("/salesRepresentative")
-    public ResponseEntity<Client> createRepresentative(@RequestBody SalesRepresentative salesRepresentative) {
+    public ResponseEntity<SalesRepresentative> createRepresentative(@RequestBody SalesRepresentative salesRepresentative) {
         try {
-            SalesRepresentative rep = salesRepresentativeRepository.save(salesRepresentative);
-            return new ResponseEntity(rep, HttpStatus.CREATED);
+            SalesRepresentative savedRepresentative = salesRepresentativeRepository.save(salesRepresentative);
+            return new ResponseEntity(savedRepresentative, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/salesRepresentative/{visitId}")
+    public ResponseEntity<SalesRepresentative> createLocationIntoClient(@PathVariable(value = "visitId") Long visitId,
+                                                             @RequestBody SalesRepresentative salesRepresentative) {
+        try {
+            SalesRepresentative newRepresentative = visitRepository.findById(visitId).map(visit -> {
+                long representativeId = salesRepresentative.getId();
+                if(representativeId != 0){
+                    SalesRepresentative retrievedRepresentative = salesRepresentativeRepository.findById(representativeId)
+                            .orElseThrow(() -> new NullPointerException("Representative to add not found"));
+                    visit.addSalesRepresentative(retrievedRepresentative);
+                    visitRepository.save(visit);
+                    return retrievedRepresentative;
+                }
+                visit.addSalesRepresentative(salesRepresentative);
+                return salesRepresentativeRepository.save(salesRepresentative);
+            }).orElseThrow(() -> new NullPointerException("Visit not found"));
+            return new ResponseEntity<>(newRepresentative, HttpStatus.CREATED);
+        } catch (NullPointerException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 }

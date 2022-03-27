@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component;
 import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Component
@@ -15,17 +16,15 @@ public class Visit {
     @GeneratedValue
     private long id;
     private Date date;
+    private int net;
+    private int visitTotal;
+    private String description;
 
     @ManyToMany
     @JoinTable(name = "visit_representative",
             joinColumns = { @JoinColumn(name = "visit.id") },
             inverseJoinColumns = { @JoinColumn(name = "representative.id") })
-    private List<SalesRepresentative> salesRepresentatives;
-
-    private int net;
-
-    private int visitTotal;
-    private String description;
+    private Set<SalesRepresentative> salesRepresentatives = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name="client.id")
@@ -34,7 +33,7 @@ public class Visit {
 
     public Visit(){}
 
-    public Visit(Date date, List<SalesRepresentative> salesRepresentatives, int net, int visitTotal, String description, Client client) {
+    public Visit(Date date, Set<SalesRepresentative> salesRepresentatives, int net, int visitTotal, String description, Client client) {
         super();
         this.date = date;
         this.salesRepresentatives = salesRepresentatives;
@@ -42,6 +41,11 @@ public class Visit {
         this.visitTotal = visitTotal;
         this.description = description;
         this.client = client;
+    }
+
+    public void addSalesRepresentative(SalesRepresentative salesRepresentative){
+        this.salesRepresentatives.add(salesRepresentative);
+        salesRepresentative.getVisits().add(this);
     }
 
     public long getId() {
@@ -60,11 +64,11 @@ public class Visit {
         this.date = date;
     }
 
-    public List<SalesRepresentative> getSalesRepresentatives() {
+    public Set<SalesRepresentative> getSalesRepresentatives() {
         return salesRepresentatives;
     }
 
-    public void setSalesRepresentatives(List<SalesRepresentative> salesRepresentatives) {
+    public void setSalesRepresentatives(Set<SalesRepresentative> salesRepresentatives) {
         this.salesRepresentatives = salesRepresentatives;
     }
 
