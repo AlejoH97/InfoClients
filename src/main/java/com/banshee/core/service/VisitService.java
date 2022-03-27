@@ -2,6 +2,7 @@ package com.banshee.core.service;
 
 import com.banshee.core.controller.exceptions.ClientIdNotFoundException;
 import com.banshee.core.controller.exceptions.VisitNotFoundException;
+import com.banshee.core.entity.Client;
 import com.banshee.core.entity.Visit;
 import com.banshee.core.repository.ClientRepository;
 import com.banshee.core.repository.VisitRepository;
@@ -26,6 +27,8 @@ public class VisitService {
 
     public Visit createVisit(Long clientId, Visit visit) {
         return clientRepository.findById(clientId).map(client -> {
+            visit.setVisitTotal(calculateVisitTotal(client, visit));
+            client.setAvailableCredit(calculateClientCredit(client, visit));
             client.addVisit(visit);
             return visitRepository.save(visit);
         }).orElseThrow(() -> new ClientIdNotFoundException(clientId));
@@ -40,8 +43,16 @@ public class VisitService {
                 .orElseThrow(() -> new VisitNotFoundException(id));
         retrievedVisit.setDate(visit.getDate());
         retrievedVisit.setNet(visit.getNet());
-        retrievedVisit.setVisitTotal(visit.getVisitTotal());
         retrievedVisit.setDescription(visit.getDescription());
+        retrievedVisit.setVisitTotal(calculateVisitTotal(retrievedVisit.getClient(), visit));
         return visitRepository.save(retrievedVisit);
+    }
+
+    private int calculateVisitTotal(Client client, Visit visit){
+        return Math.round(visit.getNet() * client.getVisitsPercentage());
+    }
+
+    private int calculateClientCredit(Client client, Visit visit){
+        return client.getAvailableCredit() - visit.getVisitTotal();
     }
 }
