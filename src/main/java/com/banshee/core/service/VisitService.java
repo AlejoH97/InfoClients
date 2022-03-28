@@ -55,4 +55,8 @@ public class VisitService {
     private int calculateClientCredit(Client client, Visit visit){
         return client.getAvailableCredit() - visit.getVisitTotal();
     }
+
+    public List<Visit> findByClientId(long id) {
+        return new ArrayList<>(visitRepository.findVisitByClients(id));
+    }
 }

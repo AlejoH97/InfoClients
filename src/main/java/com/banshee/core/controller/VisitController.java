@@ -67,4 +67,17 @@ public class VisitController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/visits/{clientID}")
+    public ResponseEntity<List<Visit>> getVisitsByClientId(@PathVariable("clientID") long clientID) {
+        try {
+            List<Visit> visits = visitService.findByClientId(clientID);
+            if (visits.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(visits, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

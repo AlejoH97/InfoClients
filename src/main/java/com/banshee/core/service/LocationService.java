@@ -3,8 +3,10 @@ package com.banshee.core.service;
 import com.banshee.core.controller.exceptions.ClientIdNotFoundException;
 import com.banshee.core.controller.exceptions.LocationNotFoundException;
 import com.banshee.core.entity.Location;
+import com.banshee.core.entity.VisitsPerCity;
 import com.banshee.core.repository.ClientRepository;
 import com.banshee.core.repository.LocationRepository;
+import com.banshee.core.repository.VisitsByLocationsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,9 @@ public class LocationService {
 
     @Autowired
     ClientRepository clientRepository;
+
+    @Autowired
+    VisitsByLocationsRepository visitsByLocationsRepository;
 
     public List<Location> getAllLocations() {
         return new ArrayList<>(locationRepository.findAll());
@@ -54,5 +59,9 @@ public class LocationService {
         retrievedLocation.setState(location.getState());
         retrievedLocation.setCountry(location.getCountry());
         return locationRepository.save(retrievedLocation);
+    }
+
+    public List<VisitsPerCity> getVisitsByLocations() {
+        return visitsByLocationsRepository.getVisitsByLocations();
     }
 }
