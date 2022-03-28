@@ -1,5 +1,6 @@
 package com.banshee.core.entity;
 
+import com.banshee.core.service.AttributeEncryptor;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ public class Client {
     @GeneratedValue
     private long id;
     @Column(nullable = false)
+    @Convert(converter = AttributeEncryptor.class)
     private String nit;
     @Column(nullable = false)
     private String fullName;
