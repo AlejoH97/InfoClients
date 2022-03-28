@@ -2,6 +2,7 @@ package com.banshee.core.controller;
 
 import com.banshee.core.controller.exceptions.AttributeNotFoundException;
 import com.banshee.core.entity.Location;
+import com.banshee.core.entity.VisitsPerCity;
 import com.banshee.core.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -73,6 +74,19 @@ public class LocationController {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/locations/visits")
+    public ResponseEntity<List<VisitsPerCity>> getVisitsByCities() {
+        try {
+            List<VisitsPerCity> visits = locationService.getVisitsByLocations();
+            if (visits.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(visits, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
