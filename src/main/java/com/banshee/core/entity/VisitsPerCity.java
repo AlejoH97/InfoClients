@@ -4,11 +4,9 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
 @Component
-@Table(name = "representative")
 public class VisitsPerCity {
 
     @Id

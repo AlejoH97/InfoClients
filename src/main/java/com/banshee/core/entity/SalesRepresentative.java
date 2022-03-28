@@ -1,5 +1,6 @@
 package com.banshee.core.entity;
 
+import com.banshee.core.service.AttributeEncryptor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,8 @@ public class SalesRepresentative {
     @Id
     @GeneratedValue
     private long id;
+    @Column(nullable = false)
+    @Convert(converter = AttributeEncryptor.class)
     private String nit;
     private String name;
 

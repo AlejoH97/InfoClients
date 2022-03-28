@@ -23,7 +23,7 @@ public class SalesRepresentativeService {
         return new ArrayList<>(salesRepresentativeRepository.findAll());
     }
 
-    public Object createRepresentative(SalesRepresentative salesRepresentative) {
+    public SalesRepresentative createRepresentative(SalesRepresentative salesRepresentative) {
         return salesRepresentativeRepository.save(salesRepresentative);
     }
 
