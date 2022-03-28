@@ -9,11 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class ClientController {
+public class ClientController extends BaseController {
 
     @Autowired
     ClientService clientService;
@@ -32,7 +33,7 @@ public class ClientController {
     }
 
     @PostMapping("/clients")
-    public ResponseEntity<Client> createClient(@RequestBody Client client) {
+    public ResponseEntity<Client> createClient(@Valid @RequestBody Client client) {
         try {
             return new ResponseEntity<>(
                     clientService.createClient(client), HttpStatus.CREATED);
@@ -52,7 +53,7 @@ public class ClientController {
     }
 
     @PutMapping("/clients/{id}")
-    public ResponseEntity<Client> updateClient(@PathVariable("id") long id, @RequestBody Client client) {
+    public ResponseEntity<Client> updateClient(@PathVariable("id") long id, @Valid @RequestBody Client client) {
         try {
             return new ResponseEntity<>(clientService.updateClient(client, id), HttpStatus.OK);
         } catch (ClientIdNotFoundException e) {

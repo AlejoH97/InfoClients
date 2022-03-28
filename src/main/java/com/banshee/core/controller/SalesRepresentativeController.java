@@ -10,11 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class SalesRepresentativeController {
+public class SalesRepresentativeController extends BaseController {
     @Autowired
     SalesRepresentativeService salesRepresentativeService;
 
@@ -34,7 +35,7 @@ public class SalesRepresentativeController {
 
     @PostMapping("/salesRepresentative")
     public ResponseEntity<SalesRepresentative> createRepresentative(
-            @RequestBody SalesRepresentative salesRepresentative) {
+            @Valid @RequestBody SalesRepresentative salesRepresentative) {
         try {
             return new ResponseEntity(
                     salesRepresentativeService.createRepresentative(salesRepresentative),
@@ -47,7 +48,7 @@ public class SalesRepresentativeController {
     @PostMapping("/salesRepresentative/{visitId}")
     public ResponseEntity<SalesRepresentative> createRepresentativeIntoVisit(
             @PathVariable(value = "visitId") Long visitId,
-            @RequestBody SalesRepresentative salesRepresentative) {
+            @Valid @RequestBody SalesRepresentative salesRepresentative) {
         try {
             return new ResponseEntity<>(
                     salesRepresentativeService.createRepresentativeIntoVisit(visitId, salesRepresentative),
@@ -71,7 +72,7 @@ public class SalesRepresentativeController {
 
     @PutMapping("/salesRepresentative/{id}")
     public ResponseEntity<SalesRepresentative> updateRepresentative(@PathVariable("id") long id,
-                                                           @RequestBody SalesRepresentative salesRepresentative) {
+                                                                    @Valid @RequestBody SalesRepresentative salesRepresentative) {
         try {
             return new ResponseEntity<>(
                     salesRepresentativeService.updateRepresentative(id, salesRepresentative),

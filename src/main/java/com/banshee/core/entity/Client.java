@@ -4,6 +4,9 @@ import com.banshee.core.service.AttributeEncryptor;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,15 +17,18 @@ public class Client {
     @Id
     @GeneratedValue
     private long id;
-    @Column(nullable = false)
+    @NotBlank(message = "Nit missing")
     @Convert(converter = AttributeEncryptor.class)
     private String nit;
-    @Column(nullable = false)
+    @NotBlank(message = "Name missing")
     private String fullName;
     private String address;
     private String phone;
+    @Min(0)
     private int creditLimit;
     private int availableCredit;
+    @Max(1)
+    @Min(0)
     private float visitsPercentage;
 
     @ManyToMany

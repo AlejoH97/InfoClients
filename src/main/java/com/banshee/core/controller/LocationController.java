@@ -10,11 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class LocationController {
+public class LocationController extends BaseController {
 
     @Autowired
     LocationService locationService;
@@ -33,7 +34,7 @@ public class LocationController {
     }
 
     @PostMapping("/locations")
-    public ResponseEntity<Location> createLocation(@RequestBody Location location) {
+    public ResponseEntity<Location> createLocation(@Valid @RequestBody Location location) {
         try {
             Location newLocation = locationService.createLocation(location);
             return new ResponseEntity(newLocation, HttpStatus.CREATED);
@@ -44,7 +45,7 @@ public class LocationController {
 
     @PostMapping("/locations/{clientId}")
     public ResponseEntity<Location> createLocationIntoClient(@PathVariable(value = "clientId") Long clientId,
-                                                   @RequestBody Location location) {
+                                                             @Valid @RequestBody Location location) {
         try {
             return new ResponseEntity<>(
                     locationService.createLocationIntoClient(clientId, location),
@@ -67,7 +68,7 @@ public class LocationController {
     }
 
     @PutMapping("/locations/{id}")
-    public ResponseEntity<Location> updateLocation(@PathVariable("id") long id, @RequestBody Location location) {
+    public ResponseEntity<Location> updateLocation(@PathVariable("id") long id, @Valid @RequestBody Location location) {
         try {
             return new ResponseEntity<>(locationService.updateLocation(id, location), HttpStatus.OK);
         } catch (AttributeNotFoundException e) {

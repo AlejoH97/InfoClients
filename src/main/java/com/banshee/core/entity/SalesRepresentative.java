@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,9 +18,10 @@ public class SalesRepresentative {
     @Id
     @GeneratedValue
     private long id;
-    @Column(nullable = false)
+    @NotBlank(message = "Nit missing")
     @Convert(converter = AttributeEncryptor.class)
     private String nit;
+    @NotBlank(message = "Name missing")
     private String name;
 
     @ManyToMany(mappedBy = "salesRepresentatives")

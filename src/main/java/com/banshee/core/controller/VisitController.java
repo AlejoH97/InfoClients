@@ -9,11 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class VisitController {
+public class VisitController extends BaseController {
     @Autowired
     VisitService visitService;
 
@@ -32,7 +33,7 @@ public class VisitController {
 
     @PostMapping("/visits/{clientId}")
     public ResponseEntity<Visit> createVisit(@PathVariable(value = "clientId") Long clientId,
-                                                   @RequestBody Visit visit) {
+                                             @Valid @RequestBody Visit visit) {
         try {
             return new ResponseEntity<>(
                     visitService.createVisit(clientId, visit),
@@ -55,7 +56,7 @@ public class VisitController {
     }
 
     @PutMapping("/visits/{id}")
-    public ResponseEntity<Visit> updateVisit(@PathVariable("id") long id, @RequestBody Visit visit) {
+    public ResponseEntity<Visit> updateVisit(@PathVariable("id") long id, @Valid @RequestBody Visit visit) {
         try {
 
             return new ResponseEntity<>(
