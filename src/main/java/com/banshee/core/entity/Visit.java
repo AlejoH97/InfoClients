@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.PastOrPresent;
 import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,7 +17,9 @@ public class Visit {
     @Id
     @GeneratedValue
     private long id;
+    @PastOrPresent
     private Date date;
+    @Min(0)
     private int net;
     private int visitTotal;
     private String description;
